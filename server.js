@@ -54,7 +54,7 @@ app.post("/sendtron", async (req, res) => {
         privateKey: privateKey
     })
     var amount = req.body.amount
-    var senderaddress = req.body.sender
+    var senderaddress = tronWeb.address.fromPrivateKey(privateKey);
     var receiveraddress = req.body.receiver
     const tradeobj = await tronWeb.transactionBuilder.sendTrx(receiveraddress, amount * 1000000, senderaddress, 1);
     const signedtxn = await tronWeb.trx.sign(tradeobj, privateKey);
