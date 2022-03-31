@@ -18,7 +18,7 @@ app.use(
 app.use(express.json());
 
 app.get("/", (req, res) => {
-    res.send("Hedera Api")
+    res.send("Tron Api")
 });
 
 //===========  Get Balance of tiny bar from an account
