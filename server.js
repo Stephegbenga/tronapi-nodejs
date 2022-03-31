@@ -76,7 +76,7 @@ app.post("/sendtron", async (req, res) => {
     const tronWeb = new TronWeb({
         fullHost: fullHost
     })
-
+    const senderaddress = tronWeb.address.fromPrivateKey(privateKey);
     const tradeobj = await tronWeb.transactionBuilder.sendTrx(receiveraddress, amount * 1000000, senderaddress, 1);
     const signedtxn = await tronWeb.trx.sign(tradeobj, privateKey);
     const receipt = await tronWeb.trx.sendRawTransaction(signedtxn);
@@ -88,26 +88,26 @@ app.post("/sendtron", async (req, res) => {
 
 app.post("/sendtokenerc", async (req, res) => {
     const privateKey = req.headers.privatekey
-    const receiveraddress = req.body.receiver
+    const addressTo = req.body.receiver
+    const trc20ContractAddress = req.body.contractaddress;//contract address TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t
     var amount_send  = req.body.amount
 
     if(privateKey == null){
         res.status(404).send("privatekey must be provided")
     }else if(amount_send == null){
         res.status(404).send("amount to be sent is missing")
-    }else if(receiveraddress == null){
+    }else if(addressTo == null){
         res.status(404).send("receiver wallet address is missing")
+    }else if(trc20ContractAddress == null){
+        res.status(404).send("contract address is missing")
     }
 
 
     const tronWeb = new TronWeb(fullNode, solidityNode, eventServer, privateKey);
-    const trc20ContractAddress = req.body.contractaddress;//contract address TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t
 
-    const addressTo = receiveraddress;
- 
 
         try {
-            const ownerAddress = tronWeb.address.fromPrivateKey(privatekey);
+            const ownerAddress = tronWeb.address.fromPrivateKey(privateKey);
             const contractAddressHex = tronWeb.address.toHex(trc20ContractAddress);
             const contractInstance = await tronWeb.contract().at(contractAddressHex);
             const decimals = await contractInstance.decimals().call();
