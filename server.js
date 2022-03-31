@@ -23,7 +23,7 @@ app.get("/", (req, res) => {
 
 //===========  Get Balance of tiny bar from an account
 
-app.post("/erctokenbalance", async (req, res) => {
+app.post("/trctokenbalance", async (req, res) => {
     const privateKey = req.headers.privatekey;
     const trc20ContractAddress = req.body.contractaddress;
     const address = req.body.accountaddress;
@@ -86,7 +86,7 @@ app.post("/sendtron", async (req, res) => {
     res.send(receipt);
 });
 
-app.post("/sendtokenerc", async (req, res) => {
+app.post("/sendtokentrc", async (req, res) => {
     const privateKey = req.headers.privatekey;
     const addressTo = req.body.receiver;
     const trc20ContractAddress = req.body.contractaddress; //contract address TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t
