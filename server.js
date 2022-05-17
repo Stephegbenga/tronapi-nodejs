@@ -84,9 +84,9 @@ app.post("/sendtron", async (req, res) => {
         console.log(receipt);
         res.send(receipt);
 
-    }catch(err){
-        console.log(err)
-         res.send(err)
+    }catch(error){
+        console.log(error)
+         res.send(error)
     }
 
 });
@@ -121,9 +121,9 @@ app.post("/sendtokentrc", async (req, res) => {
         res.send({
             transaction_hash: response,
         });
-    } catch (e) {
-        console.error(e);
-        res.send(e);
+    } catch (error) {
+        console.log(error);
+        res.send(error);
     }
 });
 
