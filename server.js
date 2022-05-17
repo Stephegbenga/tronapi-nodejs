@@ -1,15 +1,13 @@
 const express = require("express");
 const PORT = process.env.PORT || 8080;
-
 const TronWeb = require("tronweb");
-const HttpProvider = TronWeb.providers.HttpProvider;
-const fullNode = new HttpProvider("https://api.trongrid.io");
-const solidityNode = new HttpProvider("https://api.trongrid.io");
-const eventServer = new HttpProvider("https://api.trongrid.io");
-const fullHost = "https://api.trongrid.io";
+const fullHost = 'https://trx.getblock.io/mainnet'
+const headers = {
+    'x-api-key': '3179faad-3d82-4b25-bd60-bf1636d6860c'
+}
 const app = express();
 
-//=====================================================Time and Cart Total Calculation ===========================================
+
 app.use(
     express.urlencoded({
         extended: true,
@@ -21,23 +19,22 @@ app.get("/", (req, res) => {
     res.send("Tron Api");
 });
 
-//===========  Get Balance of tiny bar from an account
 
 app.post("/trctokenbalance", async (req, res) => {
-    const privateKey = req.headers.privatekey;
     const trc20ContractAddress = req.body.contractaddress;
     const address = req.body.accountaddress;
 
-    if (privateKey == null) {
-        res.status(404).send("privatekey must be provided");
-    } else if (trc20ContractAddress == null) {
-        res.status(404).send("amount to be sent is missing");
+    if (trc20ContractAddress == null) {
+        res.status(404).send("contract address is missing");
     } else if (address == null) {
         res.status(404).send("receiver wallet address is missing");
     }
 
-    const tronWeb = new TronWeb(fullNode, solidityNode, eventServer, privateKey);
-    //contract address TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t
+    const tronWeb = new TronWeb({
+        fullHost,
+        headers
+    });
+    tronWeb.setAddress('TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t');
 
     try {
         let contract = await tronWeb.contract().at(trc20ContractAddress);
@@ -71,25 +68,33 @@ app.post("/sendtron", async (req, res) => {
         res.status(404).send("privatekey must be provided");
     }
     const tronWeb = new TronWeb({
-        fullHost: fullHost,
+        fullHost,
+        headers
     });
-    const senderaddress = tronWeb.address.fromPrivateKey(privateKey);
-    const tradeobj = await tronWeb.transactionBuilder.sendTrx(
-        receiveraddress,
-        amount * 1000000,
-        senderaddress,
-        1
-    );
-    const signedtxn = await tronWeb.trx.sign(tradeobj, privateKey);
-    const receipt = await tronWeb.trx.sendRawTransaction(signedtxn);
-    console.log(receipt);
-    res.send(receipt);
+    try{
+        const senderaddress = tronWeb.address.fromPrivateKey(privateKey);
+        const tradeobj = await tronWeb.transactionBuilder.sendTrx(
+            receiveraddress,
+            amount * 1000000,
+            senderaddress,
+            1
+        );
+        const signedtxn = await tronWeb.trx.sign(tradeobj, privateKey);
+        const receipt = await tronWeb.trx.sendRawTransaction(signedtxn);
+        console.log(receipt);
+        res.send(receipt);
+
+    }caatch(err){
+        console.log(err)
+         res.send(err.message)
+    }
+
 });
 
 app.post("/sendtokentrc", async (req, res) => {
     const privateKey = req.headers.privatekey;
     const addressTo = req.body.receiver;
-    const trc20ContractAddress = req.body.contractaddress; //contract address TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t
+    const trc20ContractAddress = req.body.contractaddress;
     var amount_send = req.body.amount;
 
     if (privateKey == null) {
@@ -102,13 +107,14 @@ app.post("/sendtokentrc", async (req, res) => {
         res.status(404).send("contract address is missing");
     }
 
-    const tronWeb = new TronWeb(fullNode, solidityNode, eventServer, privateKey);
-
+    const tronWeb = new TronWeb({
+        fullHost,
+        headers,
+        privateKey
+    });
     try {
-        const ownerAddress = tronWeb.address.fromPrivateKey(privateKey);
         const contractAddressHex = tronWeb.address.toHex(trc20ContractAddress);
         const contractInstance = await tronWeb.contract().at(contractAddressHex);
-        const decimals = await contractInstance.decimals().call();
         const amount = amount_send * 1000000;
         const response = await contractInstance.transfer(addressTo, amount).send();
         console.log(response);
@@ -120,6 +126,7 @@ app.post("/sendtokentrc", async (req, res) => {
         res.send(e.message);
     }
 });
+
 
 app.listen(PORT, () => {
     console.log(`Server is up and running at ${PORT}`);
