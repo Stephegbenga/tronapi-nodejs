@@ -84,7 +84,7 @@ app.post("/sendtron", async (req, res) => {
         console.log(receipt);
         res.send(receipt);
 
-    }caatch(err){
+    }catch(err){
         console.log(err)
          res.send(err.message)
     }
