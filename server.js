@@ -46,8 +46,8 @@ app.post("/trctokenbalance", async (req, res) => {
             token: symbol,
         });
     } catch (error) {
-        console.log(error.message);
-        res.send(error.message);
+        console.log(error);
+        res.send(error);
     }
 });
 
@@ -86,7 +86,7 @@ app.post("/sendtron", async (req, res) => {
 
     }catch(err){
         console.log(err)
-         res.send(err.message)
+         res.send(err)
     }
 
 });
@@ -123,7 +123,7 @@ app.post("/sendtokentrc", async (req, res) => {
         });
     } catch (e) {
         console.error(e);
-        res.send(e.message);
+        res.send(e);
     }
 });
 
